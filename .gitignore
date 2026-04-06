@@ -1,0 +1,13 @@
+# Byte-comiled, optimized, DLL
+__pycache__/
+*.py[cod]
+*$py.class
+
+data/
+instance/
+**/*.sql
+*.sqlite
+*.venv/
+*.backup
+*.env
+*.idea/

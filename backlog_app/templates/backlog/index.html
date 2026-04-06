@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <div class="container px-0">
+        <div class="row gx-3">
+            <h2>Currently playing</h2>
+            {% for game in playing_games %}
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ game.title }}</h5>
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('backlog.detail', id=game.id) }}">View details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <div class="row">
+            <h2>All games</h2>
+            <table class="table table-hover" id="gamesTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Launcher</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">ProtonDB</th>
+                        <th scope="col">Rating</th>
+                        <th scope="col">Man...</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game in games %}
+                        <tr class="clickable-row" data-href="{{ url_for('backlog.detail', id=game.id) }}">
+                            <td>{{ game.title }}</td>
+                            <td>{{ game.launcher.name }}</td>
+                            <td><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span></td>
+                            <td><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</td>
+                            <td>{{ game.rating if game.rating!=None }}</td>
+                            <td>
+                                {% if game.man %}
+                                <i class="bi bi-check-lg"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}

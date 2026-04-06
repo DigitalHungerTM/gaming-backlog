@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block header %}
+    <h1>
+        {% block title %}
+            Add Game
+        {% endblock %}
+    </h1>
+{% endblock %}
+
+{% block content %}
+    {% from 'bootstrap5/form.html' import render_form %}
+    {{ render_form(form) }}
+{% endblock %}
