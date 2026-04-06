@@ -6,8 +6,8 @@ Bootstrap-Flask for styling. As this is a small project nothing more than an sql
 ## Project layout
 
 - `backlog_app`: This is where the magic happens
-- `instance`: This is the location of the sqlite database (aptly called `db.sqlite`)
-- `data`: Contains some backups of the database
+- `instance`: This is the location of the sqlite database (aptly called `db.sqlite`) (will be created if it doesn't
+  exist)
 - `tools`: Some scripts for running / debugging the application
 
 ## Starting the application
