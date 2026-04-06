@@ -1,71 +1,83 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {{ game.title }}
+{{ game.title }}
 {% endblock %}
 
 
 {% block content %}
-    <div>
-        <div class="row">
-            <div class="col mb-3"><h3>{{ game.title }}</h3></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col"><h5>Launcher</h5></div>
-            <div class="col"><span class="p-1">{{ game.launcher.name }}</span></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col"><h5>Status</h5></div>
-            <div class="col"><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col"><h5>ProtonDB</h5></div>
-            <div class="col"><span class="p-1"><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</span></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col"><h5>Rating</h5></div>
-            <div class="col"><span class="p-1">{{ game.rating }}</span></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col"><h5>Man</h5></div>
-            <div class="col"><span class="p-1">{{ game.man }}</span></div>
-        </div>
-        <div class="row mb-2">
-            <div class="col">
-                <h5>Review</h5>
-                <p>{{ game.review if game.review else "No review yet..." }}</p>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Are you sure</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                <a class="btn btn-warning" href="{{ url_for('backlog.update_game', id=game.id) }}">Edit</a>
-
-                <!-- Button trigger modal -->
-                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                    Delete
-                </button>
-
-                <!-- Delete Modal -->
-                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="deleteModalLabel">Are you sure</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                You are about to delete the game '{{ game.title }}' from the database, are you sure?
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <form action="{{ url_for('backlog.delete_game', id=game.id) }}" method="post">
-                                    <input type="submit" class="btn btn-danger" value="Delete">
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-body">
+                You are about to delete the game '{{ game.title }}' from the database, are you sure?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form action="{{ url_for('backlog.delete_game', id=game.id) }}" method="post">
+                    <input type="submit" class="btn btn-danger" value="Delete">
+                </form>
             </div>
         </div>
     </div>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-3">
+            <img src="{{ cover_url }}" alt="Cover image">
+        </div>
+        <div class="col-9">
+            <div class="row">
+                <div class="col px-0">
+                    <h3>{{ game.title }} ({{ year }})</h3>
+                </div>
+                <div class="col px-0 text-end">
+                    <a class="btn btn-warning" href="{{ url_for('backlog.update_game', id=game.id) }}">Edit</a>
+
+                    <!-- Button trigger modal -->
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Delete
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table">
+                    <tr>
+                        <th scope="row">Launcher</th>
+                        <td>{{ game.launcher.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Status</th>
+                        <td><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">ProtonDB rating</th>
+                        <td><span class="p-1"><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Rating</th>
+                        <td>{{ game.rating }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Man...</th>
+                        <td>{{ game.man }}</td>
+                    </tr>
+                </table>
+                {% if game.review %}
+                    <h5 class="px-0">Review</h5>
+                    <p class="px-0">{{ game.review }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

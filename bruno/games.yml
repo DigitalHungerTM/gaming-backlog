@@ -8,11 +8,7 @@ http:
   url: "{{API_BASE}}/games"
   body:
     type: text
-    data: |-
-      search "God of war";
-      fields id, name, game_type, first_release_date;
-      limit 10;
-      where game_type = 0 | game_type = 8 | game_type = 9;
+    data: fields id,name; search name "[REDACTED]"; limit 3;
   auth: inherit
 
 settings:

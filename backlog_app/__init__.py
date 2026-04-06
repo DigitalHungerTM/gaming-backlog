@@ -24,6 +24,7 @@ def create_app():
         SQLALCHEMY_DATABASE_URI='sqlite:///db.sqlite', # use sqlite database in local file
         IGDB_CLIENT_ID=os.environ.get('IGDB_CLIENT_ID'),
         IGDB_CLIENT_SECRET=os.environ.get('IGDB_CLIENT_SECRET'),
+        IGDB_DEBUG=os.environ.get('IGDB_DEBUG') in {'True', 'true'},
     )
 
     try:

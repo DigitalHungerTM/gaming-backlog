@@ -1,3 +1,5 @@
+from typing import Literal
+
 from flask import Flask
 import requests
 from requests import Response
@@ -5,18 +7,36 @@ from requests import Response
 API_URL = 'https://api.igdb.com/v4'
 ACCESS_TOKEN_URL = 'https://id.twitch.tv/oauth2/token'
 
+t_image_type = Literal[
+    'cover_small',
+    'cover_big',
+    'screenshot_med',
+    'screenshot_big',
+    'screenshot_huge',
+    'logo_med',
+    'micro',
+    'thumb',
+    '720p',
+    '1080p'
+]
+
+
+def cover_url_builder(image_id: str, image_type: t_image_type = 'cover_big'):
+    return f'https://images.igdb.com/igdb/image/upload/t_{image_type}/{image_id}.webp'
+
+
 class IGDB:
     _client_id: str
     _client_secret: str
     _access_token: str
     _expires_in: int
-
+    _debug: bool = False
 
     def init_app(self, app: Flask):
         self._client_id = app.config['IGDB_CLIENT_ID']
         self._client_secret = app.config['IGDB_CLIENT_SECRET']
         self._authorize()
-
+        self._debug = app.config['IGDB_DEBUG']
 
     def _authorize(self):
         auth_response = requests.post(url=ACCESS_TOKEN_URL, params={
@@ -33,6 +53,8 @@ class IGDB:
         params = self._compose_request(query)
 
         response = requests.post(url=url, **params)
+        if self._debug:
+            print(f'{response.status_code}: {response.text}')
         response.raise_for_status()
         return response
 
@@ -59,6 +81,7 @@ class IGDB:
 
 
 igdb = IGDB()
+
 
 def init_app(app: Flask):
     igdb.init_app(app)

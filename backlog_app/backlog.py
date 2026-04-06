@@ -8,9 +8,9 @@ from sqlalchemy.orm import load_only
 from wtforms import StringField, SelectField, DecimalField, BooleanField, TextAreaField, SubmitField
 from wtforms.validators import Length, Optional, NumberRange, InputRequired
 
-from backlog_app import apicalpyse
+from backlog_app import apicalypse
 from backlog_app.db import db, Game, Launcher, Status, Proton
-from backlog_app.igdb import igdb
+from backlog_app.igdb import igdb, cover_url_builder
 
 bp = Blueprint('backlog', __name__)
 
@@ -40,6 +40,7 @@ def index():
 
 @bp.route('/add', methods=('GET', 'POST'))
 def add():
+    # todo: revamp this route to use IGDB as source of truth, store cover image ID in database with game for less requests on game lookup
     add_game_form = AddGameForm()
     add_game_form.launcher_id.choices = [(l.id, l.name) for l in db.session.scalars(select(Launcher).order_by(Launcher.id))]
     add_game_form.status_id.choices = [(s.id, s.name) for s in db.session.scalars(select(Status).order_by(Status.id))]
@@ -106,8 +107,17 @@ def delete_game(id):
 
 @bp.route('/<int:id>/detail')
 def detail(id):
+    # TODO: fix scaling with different viewports
     game = db.get_or_404(Game, id)
-    return render_template('backlog/game.html', game=game)
+
+    query = apicalypse.QueryBuilder().where(f'id = {str(game.igdb_id)}').fields(['cover', 'first_release_date']).limit(1)
+    print(query.build())
+    game_data = igdb.api_request('/games', query.build()).json()[0]
+    query = apicalypse.QueryBuilder().where(f'id = {game_data["cover"]}').fields(['image_id']).limit(1)
+    cover_data = igdb.api_request('/covers', query.build()).json()[0]
+    cover_url = cover_url_builder(cover_data['image_id'])
+
+    return render_template('backlog/game.html', game=game, cover_url=cover_url, year=time.localtime(game_data['first_release_date']).tm_year)
 
 
 @bp.route('/random')
@@ -139,13 +149,11 @@ class SearchIgdbGameForm(FlaskForm):
 class SearchGameResult:
     id: int
     name: str
-    cover: int
     cover_url: str
     year: int
 
-    def __init__(self, id, cover, name, first_release_date):
+    def __init__(self, id, name, first_release_date):
         self.id = id
-        self.cover = cover
         self.name = name
         self.year = time.localtime(first_release_date).tm_year
 
@@ -169,12 +177,12 @@ def igdb_games():
 
     if form.validate_on_submit():
         assert form.title.data is not None
-        query = apicalpyse.QueryBuilder().search(form.title.data).fields(['id', 'name', 'cover', 'first_release_date']).limit(8).where('parent_game = null')
+        query = apicalypse.QueryBuilder().search(form.title.data).fields(['id', 'name', 'cover', 'first_release_date']).limit(8).where('parent_game = null')
         data = igdb.api_request('/games', query.build())
         games = json.loads(data.text, object_hook=lambda d: SearchGameResult(**d))
 
         game_ids = ','.join([str(game.id) for game in games])
-        data = igdb.api_request('/covers', apicalpyse.QueryBuilder().fields(['game, image_id']).where(f'game = ({game_ids})').build())
+        data = igdb.api_request('/covers', apicalypse.QueryBuilder().fields(['game, image_id']).where(f'game = ({game_ids})').build())
         covers = json.loads(data.text, object_hook=lambda d: CoverSearchResult(**d))
 
         # stupid solution but it should work for now
