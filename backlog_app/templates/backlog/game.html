@@ -31,12 +31,19 @@
 <div>
     <div class="row">
         <div class="col-3">
-            <img src="{{ cover_url }}" alt="Cover image">
+            {% if cover_url %}
+                <img src="{{ cover_url }}" alt="Cover image" class="rounded-2" style="background-color: black;">
+            {% else %}
+                <div class="d-flex justify-content-center align-items-center rounded-2" style="background-color: gray; width: 264px; height: 352px;">
+                    <h5>{{ game.title }}</h5>
+                </div>
+            {% endif %}
+
         </div>
         <div class="col-9">
             <div class="row">
                 <div class="col px-0">
-                    <h3>{{ game.title }} ({{ year }})</h3>
+                    <h3>{{ game.title }}</h3>
                 </div>
                 <div class="col px-0 text-end">
                     <a class="btn btn-warning" href="{{ url_for('backlog.update_game', id=game.id) }}">Edit</a>

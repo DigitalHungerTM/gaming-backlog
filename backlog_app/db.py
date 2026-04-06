@@ -34,6 +34,7 @@ class Game(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     igdb_id: Mapped[Optional[int]]
+    igdb_image_id: Mapped[Optional[str]]
     title: Mapped[str] = mapped_column(unique=True)
     launcher_id: Mapped[int] = mapped_column(ForeignKey("launcher.id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("status.id"))
