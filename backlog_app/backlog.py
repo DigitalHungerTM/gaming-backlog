@@ -10,7 +10,7 @@ from wtforms.validators import Length, Optional, NumberRange, InputRequired
 
 from backlog_app import apicalypse
 from backlog_app.db import db, Game, Launcher, Status, Proton
-from backlog_app.igdb import igdb, cover_url_builder
+from backlog_app.igdb import igdb, cover_url_builder, t_image_type
 
 bp = Blueprint('backlog', __name__)
 
@@ -35,7 +35,8 @@ class UpdateGameForm(AddGameForm):
 @bp.route('/')
 def index():
     games = db.session.scalars(select(Game))
-    playing_games = db.session.scalars(select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title))
+    # TODO: make the igdb build_image_url into a custom jinja hook
+    playing_games = db.session.scalars(select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title).limit(6))
     return render_template('backlog/index.html', games=games, playing_games=playing_games)
 
 
@@ -231,3 +232,13 @@ def update_image_id():
 
     flash('Updated all games with IGDB ID')
     return redirect(url_for('index'))
+
+@bp.context_processor
+def utility_processor():
+    def igdb_build_cover_url(image_id: str, image_type: t_image_type = 'cover_big'):
+        """
+        Garbage in garbage out
+        """
+        return cover_url_builder(image_id, image_type)
+
+    return dict(igdb_build_cover_url=igdb_build_cover_url)

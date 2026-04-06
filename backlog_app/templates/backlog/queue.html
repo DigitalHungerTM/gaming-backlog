@@ -5,26 +5,16 @@
             <tr>
                 <th scope="col">Title</th>
                 <th scope="col">Launcher</th>
-<!--                <th scope="col">Status</th>-->
                 <th scope="col">ProtonDB</th>
-<!--                <th scope="col">Rating</th>-->
-<!--                <th scope="col">Man...</th>-->
                 <th scope="col">Order</th>
             </tr>
         </thead>
         <tbody>
             {% for game in games %}
                 <tr class="clickable-row" data-href="{{ url_for('backlog.detail', id=game.id) }}">
-                    <td>{{ game.title }}</td>
+                    <td><img src="{{ igdb_build_cover_url(game.igdb_image_id, 'micro') }}" style="height: 1.5rem">  {{ game.title }}</td>
                     <td>{{ game.launcher.name }}</td>
-<!--                    <td><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span></td>-->
                     <td><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</td>
-<!--                    <td>{{ game.rating if game.rating!=None }}</td>-->
-<!--                    <td>-->
-<!--                        {% if game.man %}-->
-<!--                        <i class="bi bi-check-lg"></i>-->
-<!--                        {% endif %}-->
-<!--                    </td>-->
                     <td>{{ game.queue_order }}.</td>
                 </tr>
             {% endfor %}
