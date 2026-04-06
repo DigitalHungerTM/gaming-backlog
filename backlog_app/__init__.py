@@ -1,6 +1,5 @@
 import os
 
-from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 
@@ -20,10 +19,11 @@ from flask_bootstrap import Bootstrap5
 def create_app():
     app = Flask(__name__)
 
-    load_dotenv() # flask does this too but better to be explicit
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY'),
         SQLALCHEMY_DATABASE_URI='sqlite:///db.sqlite', # use sqlite database in local file
+        IGDB_CLIENT_ID=os.environ.get('IGDB_CLIENT_ID'),
+        IGDB_CLIENT_SECRET=os.environ.get('IGDB_CLIENT_SECRET'),
     )
 
     try:
@@ -36,6 +36,9 @@ def create_app():
 
     from . import db
     db.init_app(app)
+
+    from . import igdb
+    igdb.init_app(app)
 
     from . import backlog
     app.register_blueprint(backlog.bp)

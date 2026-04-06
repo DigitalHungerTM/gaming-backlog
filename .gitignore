@@ -11,3 +11,4 @@ instance/
 *.backup
 *.env
 *.idea/
+bruno/environments/

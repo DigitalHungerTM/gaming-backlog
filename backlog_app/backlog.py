@@ -1,20 +1,26 @@
+import json
+import time
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, app
 from flask_wtf import FlaskForm
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.orm import load_only
 from wtforms import StringField, SelectField, DecimalField, BooleanField, TextAreaField, SubmitField
-from wtforms.validators import DataRequired, Length, Optional, NumberRange
+from wtforms.validators import Length, Optional, NumberRange, InputRequired
+
+from backlog_app import apicalpyse
 from backlog_app.db import db, Game, Launcher, Status, Proton
+from backlog_app.igdb import igdb
 
 bp = Blueprint('backlog', __name__)
 
 
 class AddGameForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired(), Length(max=255)])
+    title = StringField('Title', validators=[InputRequired(), Length(max=255)])
     # the launcher, status and proton field choices will have to be defined after instantiation
-    launcher_id = SelectField('Launcher', coerce=int, validators=[DataRequired()])
-    status_id = SelectField('Status', coerce=int, validators=[DataRequired()])
-    proton_id = SelectField('ProtonDB Rating', coerce=int, validators=[DataRequired()])
+    launcher_id = SelectField('Launcher', coerce=int, validators=[InputRequired()])
+    status_id = SelectField('Status', coerce=int, validators=[InputRequired()])
+    proton_id = SelectField('ProtonDB Rating', coerce=int, validators=[InputRequired()])
     rating = DecimalField('Rating', places=1, validators=[Optional(), NumberRange(min=0, max=5)], render_kw={"step": "0.5"})
     man = BooleanField('Man...')
     review = TextAreaField('Review', validators=[Length(max=3000)])
@@ -124,3 +130,59 @@ def random():
 def queue():
     games_in_queue = db.session.scalars(select(Game).join(Game.status).where(Status.name=='want to play').order_by(Game.queue_order))
     return render_template('backlog/queue.html', games=games_in_queue)
+
+
+class SearchIgdbGameForm(FlaskForm):
+    title = StringField('Title', validators=[InputRequired(), Length(max=255)])
+    submit = SubmitField('Search')
+
+class SearchGameResult:
+    id: int
+    name: str
+    cover: int
+    cover_url: str
+    year: int
+
+    def __init__(self, id, cover, name, first_release_date):
+        self.id = id
+        self.cover = cover
+        self.name = name
+        self.year = time.localtime(first_release_date).tm_year
+
+    def set_cover_url(self, image_id: str):
+        self.cover_url = f'https://images.igdb.com/igdb/image/upload/t_cover_big/{image_id}.webp'
+
+    def __repr__(self):
+        return f"SearchGameResult(id={self.id}, name={self.name}, year={self.year})"
+
+class CoverSearchResult:
+    image_id: str
+    game_id: int
+
+    def __init__(self, id, image_id, game):
+        self.image_id = image_id
+        self.game_id = game
+
+@bp.route('/igdb', methods=('GET', 'POST'))
+def igdb_games():
+    form = SearchIgdbGameForm()
+
+    if form.validate_on_submit():
+        assert form.title.data is not None
+        query = apicalpyse.QueryBuilder().search(form.title.data).fields(['id', 'name', 'cover', 'first_release_date']).limit(8).where('parent_game = null')
+        data = igdb.api_request('/games', query.build())
+        games = json.loads(data.text, object_hook=lambda d: SearchGameResult(**d))
+
+        game_ids = ','.join([str(game.id) for game in games])
+        data = igdb.api_request('/covers', apicalpyse.QueryBuilder().fields(['game, image_id']).where(f'game = ({game_ids})').build())
+        covers = json.loads(data.text, object_hook=lambda d: CoverSearchResult(**d))
+
+        # stupid solution but it should work for now
+        for game in games:
+            for cover in covers:
+                if game.id == cover.game_id:
+                    game.set_cover_url(cover.image_id)
+
+        return render_template('igdb/search_game.html', form=form, games=games)
+
+    return render_template('igdb/search_game.html', form=form)

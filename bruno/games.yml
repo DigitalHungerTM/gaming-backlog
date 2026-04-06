@@ -1,0 +1,22 @@
+info:
+  name: games
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{API_BASE}}/games"
+  body:
+    type: text
+    data: |-
+      search "God of war";
+      fields id, name, game_type, first_release_date;
+      limit 10;
+      where game_type = 0 | game_type = 8 | game_type = 9;
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

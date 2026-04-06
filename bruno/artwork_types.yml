@@ -1,0 +1,19 @@
+info:
+  name: artwork_types
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{API_BASE}}/artwork_types"
+  body:
+    type: text
+    data: |
+      fields id, name; sort id;
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

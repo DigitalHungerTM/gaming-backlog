@@ -1,0 +1,31 @@
+info:
+  name: Authenticate
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://id.twitch.tv/oauth2/token?client_id={{CLIENT_ID}}&client_secret={{CLIENT_SECRET}}&grant_type=client_credentials
+  params:
+    - name: client_id
+      value: "{{CLIENT_ID}}"
+      type: query
+    - name: client_secret
+      value: "{{CLIENT_SECRET}}"
+      type: query
+    - name: grant_type
+      value: client_credentials
+      type: query
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        console.log(res.body['access_token'])
+        bru.setEnvVar('ACCESS_TOKEN', res.body['access_token'])
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

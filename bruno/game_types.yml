@@ -1,0 +1,18 @@
+info:
+  name: game_types
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{API_BASE}}/game_types"
+  body:
+    type: text
+    data: sort id asc;
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

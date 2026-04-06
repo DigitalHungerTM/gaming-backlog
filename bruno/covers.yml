@@ -1,0 +1,18 @@
+info:
+  name: covers
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{API_BASE}}/covers"
+  body:
+    type: text
+    data: fields id, url, width, height, image_id; where game = 19560;
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
