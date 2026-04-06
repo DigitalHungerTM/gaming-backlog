@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 
@@ -19,10 +20,9 @@ from flask_bootstrap import Bootstrap5
 def create_app():
     app = Flask(__name__)
 
-    # TODO: use .env file and python-dotenv
+    load_dotenv() # flask does this too but better to be explicit
     app.config.from_mapping(
-        SECRET_KEY='dev',
-        # SECRET_KEY=os.urandom(24),
+        SECRET_KEY=os.environ.get('SECRET_KEY'),
         SQLALCHEMY_DATABASE_URI='sqlite:///db.sqlite', # use sqlite database in local file
     )
 

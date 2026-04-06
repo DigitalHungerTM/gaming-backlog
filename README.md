@@ -14,5 +14,5 @@ Bootstrap-Flask for styling. As this is a small project nothing more than an sql
 
 ```shell
 source .venv/bin/activate
-flask --app backlog_app run [--debug]
+flask run [--debug]
 ```
