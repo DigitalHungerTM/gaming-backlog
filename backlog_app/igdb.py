@@ -21,8 +21,8 @@ t_image_type = Literal[
 ]
 
 
-def cover_url_builder(image_id: str, image_type: t_image_type = 'cover_big'):
-    return f'https://images.igdb.com/igdb/image/upload/t_{image_type}/{image_id}.webp'
+def cover_url_builder(igdb_image_id: str, image_type: t_image_type = 'cover_big'):
+    return f'https://images.igdb.com/igdb/image/upload/t_{image_type}/{igdb_image_id}.webp'
 
 
 class IGDB:
@@ -37,6 +37,10 @@ class IGDB:
         self._client_secret = app.config['IGDB_CLIENT_SECRET']
         self._authorize()
         self._debug = app.config['IGDB_DEBUG']
+
+        @app.context_processor
+        def context_processor():
+            return dict(igdb_build_cover_url=cover_url_builder)
 
     def _authorize(self):
         auth_response = requests.post(url=ACCESS_TOKEN_URL, params={

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <table class="table table-hover" id="gamesTable">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th scope="col">Title</th>
@@ -11,8 +11,11 @@
         </thead>
         <tbody>
             {% for game in games %}
-                <tr class="clickable-row" data-href="{{ url_for('backlog.detail', id=game.id) }}">
-                    <td><img src="{{ igdb_build_cover_url(game.igdb_image_id, 'micro') }}" style="height: 1.5rem">  {{ game.title }}</td>
+                <tr>
+                    <td>
+                        <img src="{{ igdb_build_cover_url(game.igdb_image_id, 'micro') }}" style="height: 1.5rem">
+                        <a href="{{ url_for('backlog.detail', id=game.id) }}" class="link-light link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ game.title }}</a>
+                    </td>
                     <td>{{ game.launcher.name }}</td>
                     <td><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</td>
                     <td>{{ game.queue_order }}.</td>
@@ -20,8 +23,4 @@
             {% endfor %}
         </tbody>
     </table>
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ url_for('static', filename='queue.js') }}"></script>
 {% endblock %}

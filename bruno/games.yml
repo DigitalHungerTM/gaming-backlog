@@ -8,7 +8,7 @@ http:
   url: "{{API_BASE}}/games"
   body:
     type: text
-    data: fields id,name; search name "[REDACTED]"; limit 3;
+    data: fields name; where id = 12345;
   auth: inherit
 
 settings:

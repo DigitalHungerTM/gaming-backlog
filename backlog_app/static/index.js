@@ -1,8 +1,4 @@
 $(document).ready(function () {
-    $('.clickable-row').on('click', function () {
-        window.location = $(this).data('href')
-    })
-
     const dataTable = new DataTable('#gamesTable', {
         // not specifying a width for the first column makes it take up as much space as is available.
         columns: [null, {width: '15%'}, {width: '15%'}, {width: '15%'}, {width: '10%'}, {width: '10%'}],
