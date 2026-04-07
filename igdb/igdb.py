@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Any
 
 from flask import Flask
 import requests
@@ -61,6 +61,17 @@ class IGDB:
             print(f'{response.status_code}: {response.text}')
         response.raise_for_status()
         return response
+
+    def api_request_proto(self, endpoint: str, query: str) -> bytes:
+        if not endpoint.endswith('.pb'):
+            endpoint += '.pb'
+        url = IGDB._build_url(endpoint)
+        params = self._compose_request(query)
+        response = requests.post(url=url, ** params)
+        if self._debug:
+            print(f'{response.status_code}: {response.text}')
+        response.raise_for_status()
+        return response.content
 
     @staticmethod
     def _build_url(endpoint: str = ''):

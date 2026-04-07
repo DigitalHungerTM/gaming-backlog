@@ -49,14 +49,11 @@ class QueryBuilder:
         self._operations.append(f'sort {field}{' desc' if desc else 'asc'};')
         return self
 
-    def search(self, value: str, field: str | None = None):
+    def search(self, value: str):
         """
         :param value: Value to search for. If no field is passed, search is performed on the default column.
-        :param field: Column to perform search on.
         """
-        if field == '':
-            field = None
-        self._operations.append(f'search {field + " " if field is not None else ''}"{value}";')
+        self._operations.append(f'search "{value}";')
         return self
 
     def build(self):

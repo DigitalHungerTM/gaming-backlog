@@ -3,6 +3,8 @@ import os
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 
+from backlog_app import utils
+
 """ TODO
 
 - set up git repo
@@ -38,11 +40,12 @@ def create_app():
     from . import db
     db.init_app(app)
 
-    from . import igdb
+    from igdb import igdb
     igdb.init_app(app)
 
     from . import backlog
     app.register_blueprint(backlog.bp)
+    app.register_blueprint(utils.bp)
     app.add_url_rule('/', endpoint='index')
     app.register_error_handler(404, lambda _: render_template('404.html'))
 

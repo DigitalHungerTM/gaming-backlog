@@ -1,16 +1,17 @@
 import json
 import time
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, app
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.orm import load_only
 from wtforms import StringField, SelectField, DecimalField, BooleanField, TextAreaField, SubmitField
 from wtforms.validators import Length, Optional, NumberRange, InputRequired
 
-from backlog_app import apicalypse
+from igdb import apicalypse
 from backlog_app.db import db, Game, Launcher, Status, Proton
-from backlog_app.igdb import igdb, cover_url_builder, t_image_type
+from igdb.igdb import igdb
+from igdb.proto.igdbapi_pb2 import Game as IgdbGame
 
 bp = Blueprint('backlog', __name__)
 
@@ -35,7 +36,8 @@ class UpdateGameForm(AddGameForm):
 @bp.route('/')
 def index():
     games = db.session.scalars(select(Game))
-    playing_games = db.session.scalars(select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title).limit(6))
+    playing_games = db.session.scalars(
+        select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title).limit(6))
     return render_template('backlog/index.html', games=games, playing_games=playing_games)
 
 
@@ -181,7 +183,7 @@ def igdb_games():
         query = apicalypse.QueryBuilder().search(form.title.data).fields(['id', 'name', 'first_release_date']).limit(
             8).where('parent_game = null')
         data = igdb.api_request('/games', query.build())
-        games = json.loads(data.text, object_hook=lambda d: SearchGameResult(**d))
+        games = json.loads(data.text, object_hook=lambda d: IgdbGame(**d))
 
         game_ids = ','.join([str(game.id) for game in games])
         data = igdb.api_request('/covers', apicalypse.QueryBuilder().fields(['game', 'image_id']).where(
@@ -197,34 +199,3 @@ def igdb_games():
         return render_template('igdb/search_game.html', form=form, games=games)
 
     return render_template('igdb/search_game.html', form=form)
-
-
-@bp.route('/update_image_id')
-def update_image_id():
-    # TODO: make this into a custom flask command using click
-    """
-    Useful for bulk updating image id's for games that have them missing.
-    Note that not all rows might get updated, so running multiple times might be required.
-    """
-    games = db.session.query(Game).where(Game.igdb_id != None).where(Game.igdb_image_id == None).all()
-    games_dict = {g.igdb_id: g for g in games}
-    igdb_ids = list(map(str, games_dict.keys()))
-    page_size = 1
-    covers_dict = {}
-    for i in range(0, len(igdb_ids), page_size):
-        offset = i
-        query = apicalypse.QueryBuilder().fields(['game', 'image_id']).where(f'game = ({','.join(igdb_ids)})').offset(
-            offset).limit(page_size)
-        covers = igdb.api_request('/covers', query.build()).json()
-        for cover in covers:
-            covers_dict[cover['game']] = cover['image_id']
-
-    print(covers_dict)
-
-    for game in games:
-        game.igdb_image_id = covers_dict.get(game.igdb_id)
-
-    db.session.commit()
-
-    flash('Updated all games with IGDB ID')
-    return redirect(url_for('index'))

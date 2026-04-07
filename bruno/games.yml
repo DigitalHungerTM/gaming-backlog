@@ -5,10 +5,10 @@ info:
 
 http:
   method: POST
-  url: "{{API_BASE}}/games"
+  url: "{{API_BASE}}/games.pb"
   body:
     type: text
-    data: fields name; where id = 12345;
+    data: fields name; search "wreckfest";
   auth: inherit
 
 settings:
