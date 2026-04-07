@@ -32,7 +32,7 @@
     <div class="row">
         <div class="col-3">
             {% if game.igdb_image_id %}
-                <img src="{{ igdb_build_cover_url(game.igdb_image_id) }}" alt="Cover image" class="rounded-2" style="background-color: black;">
+                <img src="{{ igdb_cover_url(game.igdb_image_id) }}" alt="Cover image" class="rounded-2" style="background-color: black;">
             {% else %}
                 <div class="d-flex justify-content-center align-items-center rounded-2" style="background-color: gray; width: 264px; height: 352px;">
                     <h5>{{ game.title }}</h5>

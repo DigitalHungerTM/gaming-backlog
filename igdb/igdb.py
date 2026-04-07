@@ -1,4 +1,4 @@
-from typing import Literal, Any
+from typing import Literal, Any, Dict, List
 
 from flask import Flask
 import requests
@@ -40,7 +40,7 @@ class IGDB:
 
         @app.context_processor
         def context_processor():
-            return dict(igdb_build_cover_url=cover_url_builder)
+            return dict(igdb_cover_url=cover_url_builder)
 
     def _authorize(self):
         auth_response = requests.post(url=ACCESS_TOKEN_URL, params={
@@ -52,7 +52,7 @@ class IGDB:
         self._access_token = auth_response.json()['access_token']
         self._expires_in = auth_response.json()['expires_in']
 
-    def api_request(self, endpoint: str, query: str) -> Response:
+    def api_request_plain(self, endpoint: str, query: str) -> List[Dict[str, Any]] | Dict[str, Any]:
         url = IGDB._build_url(endpoint)
         params = self._compose_request(query)
 
@@ -60,9 +60,9 @@ class IGDB:
         if self._debug:
             print(f'{response.status_code}: {response.text}')
         response.raise_for_status()
-        return response
+        return response.json()
 
-    def api_request_proto(self, endpoint: str, query: str) -> bytes:
+    def api_request(self, endpoint: str, query: str) -> bytes:
         if not endpoint.endswith('.pb'):
             endpoint += '.pb'
         url = IGDB._build_url(endpoint)

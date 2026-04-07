@@ -11,7 +11,7 @@ from wtforms.validators import Length, Optional, NumberRange, InputRequired
 from igdb import apicalypse
 from backlog_app.db import db, Game, Launcher, Status, Proton
 from igdb.igdb import igdb
-from igdb.proto.igdbapi_pb2 import Game as IgdbGame
+from igdb.proto.igdbapi_pb2 import Game as IgdbGame, GameResult, CoverResult
 
 bp = Blueprint('backlog', __name__)
 
@@ -147,55 +147,22 @@ class SearchIgdbGameForm(FlaskForm):
     submit = SubmitField('Search')
 
 
-class SearchGameResult:
-    id: int
-    name: str
-    cover_url: str
-    year: int
-
-    def __init__(self, id, name, first_release_date):
-        self.id = id
-        self.name = name
-        self.year = time.localtime(first_release_date).tm_year
-
-    def set_cover_url(self, image_id: str):
-        self.cover_url = f'https://images.igdb.com/igdb/image/upload/t_cover_big/{image_id}.webp'
-
-    def __repr__(self):
-        return f"SearchGameResult(id={self.id}, name={self.name}, year={self.year})"
-
-
-class CoverSearchResult:
-    image_id: str
-    game_id: int
-
-    def __init__(self, id, image_id, game):
-        self.image_id = image_id
-        self.game_id = game
-
-
-@bp.route('/igdb', methods=('GET', 'POST'))
-def igdb_games():
+@bp.route('/igdb/search', methods=('GET', 'POST'))
+def igdb_search():
     form = SearchIgdbGameForm()
 
     if form.validate_on_submit():
         assert form.title.data is not None
-        query = apicalypse.QueryBuilder().search(form.title.data).fields(['id', 'name', 'first_release_date']).limit(
-            8).where('parent_game = null')
+        query = (
+            apicalypse.QueryBuilder()
+            .search(form.title.data)
+            .fields(['name', 'cover.image_id', 'first_release_date'])
+            .limit(8)
+        )
         data = igdb.api_request('/games', query.build())
-        games = json.loads(data.text, object_hook=lambda d: IgdbGame(**d))
-
-        game_ids = ','.join([str(game.id) for game in games])
-        data = igdb.api_request('/covers', apicalypse.QueryBuilder().fields(['game', 'image_id']).where(
-            f'game = ({game_ids})').build())
-        covers = json.loads(data.text, object_hook=lambda d: CoverSearchResult(**d))
-
-        # stupid solution but it should work for now
-        for game in games:
-            for cover in covers:
-                if game.id == cover.game_id:
-                    game.set_cover_url(cover.image_id)
-
+        message = GameResult()
+        message.ParseFromString(data)
+        games = message.games
         return render_template('igdb/search_game.html', form=form, games=games)
 
     return render_template('igdb/search_game.html', form=form)

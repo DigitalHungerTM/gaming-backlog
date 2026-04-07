@@ -13,7 +13,7 @@
             {% for game in games %}
                 <tr>
                     <td>
-                        <img src="{{ igdb_build_cover_url(game.igdb_image_id, 'micro') }}" style="height: 1.5rem">
+                        <img src="{{ igdb_cover_url(game.igdb_image_id, 'micro') }}" style="height: 1.5rem">
                         <a href="{{ url_for('backlog.detail', id=game.id) }}" class="link-light link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ game.title }}</a>
                     </td>
                     <td>{{ game.launcher.name }}</td>

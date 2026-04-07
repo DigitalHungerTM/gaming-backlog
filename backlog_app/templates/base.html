@@ -21,6 +21,16 @@
             crossorigin="anonymous"></script>
 
     <title>{% block title %}{% endblock %} - Gaming Backlog</title>
+    <style>
+    .game-card .gradient-bottom {
+        height: 60%; /* controls how tall the fade is */
+        background: linear-gradient(
+                to top,
+                rgba(0, 0, 0, 0.99) 0%, /* darkest behind text */ rgba(0, 0, 0, 0.85) 20%,
+                rgba(0, 0, 0, 0) 100% /* fades into image */
+        );
+    }
+</style>
 </head>
 <body>
 

@@ -1,9 +1,12 @@
 import os
+import time
 
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
+from google.protobuf.internal.well_known_types import Timestamp
 
 from backlog_app import utils
+from igdb.igdb import cover_url_builder
 
 """ TODO
 
@@ -48,5 +51,11 @@ def create_app():
     app.register_blueprint(utils.bp)
     app.add_url_rule('/', endpoint='index')
     app.register_error_handler(404, lambda _: render_template('404.html'))
+
+    @app.context_processor
+    def processor():
+        def year_from_timestamp(t: Timestamp):
+            return t.ToDatetime().year
+        return dict(year_from_timestamp=year_from_timestamp)
 
     return app

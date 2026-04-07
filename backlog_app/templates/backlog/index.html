@@ -1,60 +1,84 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Home
+Home
 {% endblock %}
 
 {% block content %}
-    <div class="container px-0">
-        <div class="row gx-3">
-            <h2>Currently playing</h2>
-            {% for game in playing_games %}
-                <div class="col-2">
-                    <a href="{{ url_for('backlog.detail', id=game.id) }}">
-                        <img src="{{ igdb_build_cover_url(game.igdb_image_id) }}" alt="game cover" class="card-img-top rounded-2" style="background-color: black;">
-                    </a>
+<div class="container px-0">
+    <div class="row gx-3">
+        <h2>Currently playing</h2>
+        {% for game in playing_games %}
+        <div class="col-2">
+            <a href="{{ url_for('backlog.detail', id=game.id) }}">
+                <div class="game-card card text-white rounded-2 overflow-hidden border-0">
+
+                    <div class="position-relative" style="height: 250px;">
+
+                        <!-- Image -->
+                        <img src="{{ igdb_cover_url(game.igdb_image_id) }}"
+                             class="w-100 h-100 object-fit-cover"
+                        alt="">
+
+                        <!-- Gradient -->
+                        <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
+
+                        <!-- Text -->
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                            <h6 class="mb-1">{{ game.title }}</h6>
+                        </div>
+
+                    </div>
+
                 </div>
-            {% endfor %}
+            </a>
         </div>
-        <hr>
-        <div class="row">
-            <h2>All games</h2>
-            <table class="table table-hover" id="gamesTable">
-                <thead>
-                    <tr>
-                        <th scope="col">Title</th>
-                        <th scope="col">Launcher</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">ProtonDB</th>
-                        <th scope="col">Rating</th>
-                        <th scope="col">Man...</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for game in games %}
-                        <tr>
-                            <td>
-                                <img src="{{ igdb_build_cover_url(game.igdb_image_id, 'micro') }}" class="rounded-1" style="height: 1.5rem">
-                                <a href="{{ url_for('backlog.detail', id=game.id) }}" class="link-light link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ game.title }}</a>
-                            </td>
-                            <td>{{ game.launcher.name }}</td>
-                            <td><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span></td>
-                            <td><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}</td>
-                            <td>{{ game.rating if game.rating!=None }}</td>
-                            <td>
-                                {% if game.man %}
-                                <i class="bi bi-check-lg"></i>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% endfor %}
     </div>
+    <hr>
+    <div class="row">
+        <h2>All games</h2>
+        <table class="table table-hover" id="gamesTable">
+            <thead>
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Launcher</th>
+                <th scope="col">Status</th>
+                <th scope="col">ProtonDB</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Man...</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for game in games %}
+            <tr>
+                <td>
+                    <img src="{{ igdb_cover_url(game.igdb_image_id, 'micro') }}" class="rounded-1"
+                         style="height: 1.5rem">
+                    <a href="{{ url_for('backlog.detail', id=game.id) }}"
+                       class="link-light link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{
+                        game.title }}</a>
+                </td>
+                <td>{{ game.launcher.name }}</td>
+                <td><span class="p-1" style="background-color:#{{ game.status.hex_color }}; border-radius: 3px">{{ game.status.name }}</span>
+                </td>
+                <td><i class="bi bi-star-fill" style="color:#{{ game.proton.hex_color }}"></i> {{ game.proton.rating }}
+                </td>
+                <td>{{ game.rating if game.rating!=None }}</td>
+                <td>
+                    {% if game.man %}
+                    <i class="bi bi-check-lg"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+<script src="{{ url_for('static', filename='index.js') }}"></script>
 {% endblock %}

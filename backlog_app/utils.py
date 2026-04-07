@@ -36,7 +36,7 @@ def update_image_ids():
             .offset(i)
             .limit(page_size)
         )
-        covers = igdb.api_request('/covers', query.build()).json()
+        covers = igdb.api_request_plain('/covers', query.build()).json()
         for c in covers:
             covers_dict[c['game']] = c['image_id']
 
@@ -64,10 +64,10 @@ def search_game(title: str):
     """
     query = (
         apicalypse.QueryBuilder()
-        .fields(['name'])
+        .fields(['name', 'cover', 'cover.image_id'])
         .search(title)
     )
-    data = igdb.api_request_proto('/games.pb', query.build())
+    data = igdb.api_request('/games.pb', query.build())
     message = GameResult()
     message.ParseFromString(data)
     print(message.games)
