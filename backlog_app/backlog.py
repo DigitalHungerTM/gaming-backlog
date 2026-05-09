@@ -37,8 +37,11 @@ class UpdateGameForm(AddGameForm):
 def index():
     games = db.session.scalars(select(Game))
     playing_games = db.session.scalars(
-        select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title).limit(6))
-    return render_template('backlog/index.html', games=games, playing_games=playing_games)
+        select(Game).join(Status).where(Status.name == 'playing').order_by(Game.title))
+    queue = db.session.scalars(
+        select(Game).join(Status).where(Status.name == 'want to play').order_by(Game.queue_order)
+    )
+    return render_template('backlog/index.html', games=games, playing_games=playing_games, games_in_queue=queue)
 
 
 @bp.route('/add', methods=('GET', 'POST'))

@@ -7,33 +7,68 @@ Home
 {% block content %}
 <div class="container px-0">
     <div class="row gx-3">
-        <h2>Currently playing</h2>
-        {% for game in playing_games %}
-        <div class="col-2">
-            <a href="{{ url_for('backlog.detail', id=game.id) }}">
-                <div class="game-card card text-white rounded-2 overflow-hidden border-0">
+        <div class="col">
+            <h2>Currently playing</h2>
+            <div class="row flex-nowrap overflow-x-auto">
+                {% for game in playing_games %}
+                <div class="col-4">
+                    <a href="{{ url_for('backlog.detail', id=game.id) }}">
+                        <div class="game-card card text-white rounded-2 overflow-hidden border-0">
 
-                    <div class="position-relative" style="height: 250px;">
+                            <div class="position-relative" style="height: 250px;">
 
-                        <!-- Image -->
-                        <img src="{{ igdb_cover_url(game.igdb_image_id) }}"
-                             class="w-100 h-100 object-fit-cover"
-                        alt="">
+                                <!-- Image -->
+                                <img src="{{ igdb_cover_url(game.igdb_image_id) }}"
+                                     class="w-100 h-100 object-fit-cover"
+                                     alt="">
 
-                        <!-- Gradient -->
-                        <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
+                                <!-- Gradient -->
+                                <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
 
-                        <!-- Text -->
-                        <div class="position-absolute bottom-0 start-0 p-3 w-100">
-                            <h6 class="mb-1">{{ game.title }}</h6>
+                                <!-- Text -->
+                                <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                                    <h6 class="mb-1">{{ game.title }}</h6>
+                                </div>
+
+                            </div>
+
                         </div>
-
-                    </div>
-
+                    </a>
                 </div>
-            </a>
+                {% endfor %}
+            </div>
         </div>
-        {% endfor %}
+        <div class="col">
+            <h2>Queue</h2>
+            <div class="row flex-nowrap overflow-x-auto">
+                {% for game in games_in_queue %}
+                <div class="col-4">
+                    <a href="{{ url_for('backlog.detail', id=game.id) }}">
+                        <div class="game-card card text-white rounded-2 overflow-hidden border-0">
+
+                            <div class="position-relative" style="height: 250px;">
+
+                                <!-- Image -->
+                                <img src="{{ igdb_cover_url(game.igdb_image_id) }}"
+                                     class="w-100 h-100 object-fit-cover"
+                                     alt="">
+
+                                <!-- Gradient -->
+                                <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
+
+                                <!-- Text -->
+                                <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                                    <h6 class="mb-1">{{ game.title }}</h6>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     <hr>
     <div class="row">
