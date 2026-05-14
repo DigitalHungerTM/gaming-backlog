@@ -1,7 +1,7 @@
-from typing import Optional, List
+from typing import List, Optional
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, Text, String
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -9,6 +9,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 # our ORM. By writing this base class, we enable ourselves to edit meta settings.
 class Base(DeclarativeBase):
     pass
+
 
 db = SQLAlchemy(model_class=Base)
 

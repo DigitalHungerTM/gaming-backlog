@@ -1,27 +1,29 @@
-from typing import Literal, Any, Dict, List
+from typing import Any, Dict, List, Literal
 
-from flask import Flask
 import requests
+from flask import Flask
 
-API_URL = 'https://api.igdb.com/v4'
-ACCESS_TOKEN_URL = 'https://id.twitch.tv/oauth2/token'
+API_URL = "https://api.igdb.com/v4"
+ACCESS_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 
 t_image_type = Literal[
-    'cover_small',
-    'cover_big',
-    'screenshot_med',
-    'screenshot_big',
-    'screenshot_huge',
-    'logo_med',
-    'micro',
-    'thumb',
-    '720p',
-    '1080p'
+    "cover_small",
+    "cover_big",
+    "screenshot_med",
+    "screenshot_big",
+    "screenshot_huge",
+    "logo_med",
+    "micro",
+    "thumb",
+    "720p",
+    "1080p",
 ]
 
 
-def cover_url_builder(igdb_image_id: str, image_type: t_image_type = 'cover_big'):
-    return f'https://images.igdb.com/igdb/image/upload/t_{image_type}/{igdb_image_id}.webp'
+def cover_url_builder(igdb_image_id: str, image_type: t_image_type = "cover_big"):
+    return (
+        f"https://images.igdb.com/igdb/image/upload/t_{image_type}/{igdb_image_id}.webp"
+    )
 
 
 class IGDB:
@@ -32,63 +34,68 @@ class IGDB:
     _debug: bool = False
 
     def init_app(self, app: Flask):
-        self._client_id = app.config['IGDB_CLIENT_ID']
-        self._client_secret = app.config['IGDB_CLIENT_SECRET']
+        self._client_id = app.config["IGDB_CLIENT_ID"]
+        self._client_secret = app.config["IGDB_CLIENT_SECRET"]
         self._authorize()
-        self._debug = app.config['IGDB_DEBUG']
+        self._debug = app.config["IGDB_DEBUG"]
 
         @app.context_processor
         def context_processor():
             return dict(igdb_cover_url=cover_url_builder)
 
     def _authorize(self):
-        auth_response = requests.post(url=ACCESS_TOKEN_URL, params={
-            'client_id': self._client_id,
-            'client_secret': self._client_secret,
-            'grant_type': 'client_credentials'
-        })
+        auth_response = requests.post(
+            url=ACCESS_TOKEN_URL,
+            params={
+                "client_id": self._client_id,
+                "client_secret": self._client_secret,
+                "grant_type": "client_credentials",
+            },
+        )
         auth_response.raise_for_status()
-        self._access_token = auth_response.json()['access_token']
-        self._expires_in = auth_response.json()['expires_in']
+        self._access_token = auth_response.json()["access_token"]
+        self._expires_in = auth_response.json()["expires_in"]
 
-    def api_request_plain(self, endpoint: str, query: str) -> List[Dict[str, Any]] | Dict[str, Any]:
+    def api_request_plain(
+        self, endpoint: str, query: str
+    ) -> List[Dict[str, Any]] | Dict[str, Any]:
         url = IGDB._build_url(endpoint)
         params = self._compose_request(query)
 
         response = requests.post(url=url, **params)
         if self._debug:
-            print(f'{response.status_code}: {response.text}')
+            print(f"{response.status_code}: {response.text}")
         response.raise_for_status()
         return response.json()
 
     def api_request(self, endpoint: str, query: str) -> bytes:
-        if not endpoint.endswith('.pb'):
-            endpoint += '.pb'
+        if not endpoint.endswith(".pb"):
+            endpoint += ".pb"
         url = IGDB._build_url(endpoint)
         params = self._compose_request(query)
-        response = requests.post(url=url, ** params)
+        response = requests.post(url=url, **params)
         if self._debug:
-            print(f'{response.status_code}: {response.text}')
+            print(f"{response.status_code}: {response.text}")
         response.raise_for_status()
         return response.content
 
     @staticmethod
-    def _build_url(endpoint: str = ''):
-        return f'{API_URL}{endpoint}'
+    def _build_url(endpoint: str = ""):
+        return f"{API_URL}{endpoint}"
 
     def _compose_request(self, query: str):
         if not query:
-            raise Exception('No query provided!')
+            raise Exception("No query provided!")
 
         if not isinstance(query, str):
-            raise TypeError('Query must be a string')
+            raise TypeError("Query must be a string")
 
         request_params = {
-            'headers': {
-                'Client-ID': self._client_id,
-                'Authorization': f'Bearer {self._access_token}'
+            "headers": {
+                "Client-ID": self._client_id,
+                "Authorization": f"Bearer {self._access_token}",
             },
-            'data': query
+            "data": query,
         }
 
         return request_params
