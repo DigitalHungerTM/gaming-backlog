@@ -24,11 +24,11 @@ def create_app():
     dotenv.load_dotenv()
 
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get('SECRET_KEY'),
-        SQLALCHEMY_DATABASE_URI='sqlite:///db.sqlite', # use sqlite database in local file
-        IGDB_CLIENT_ID=os.environ.get('IGDB_CLIENT_ID'),
-        IGDB_CLIENT_SECRET=os.environ.get('IGDB_CLIENT_SECRET'),
-        IGDB_DEBUG=os.environ.get('IGDB_DEBUG') in {'True', 'true'},
+        SECRET_KEY=os.environ.get("SECRET_KEY"),
+        SQLALCHEMY_DATABASE_URI="sqlite:///db.sqlite",  # use sqlite database in local file
+        IGDB_CLIENT_ID=os.environ.get("IGDB_CLIENT_ID"),
+        IGDB_CLIENT_SECRET=os.environ.get("IGDB_CLIENT_SECRET"),
+        IGDB_DEBUG=os.environ.get("IGDB_DEBUG") in {"True", "true"},
     )
 
     try:
@@ -40,21 +40,25 @@ def create_app():
     bootstrap.init_app(app)
 
     from . import db
+
     db.init_app(app)
 
     from igdb import igdb
+
     igdb.init_app(app)
 
     from . import backlog
+
     app.register_blueprint(backlog.bp)
     app.register_blueprint(utils.bp)
-    app.add_url_rule('/', endpoint='index')
-    app.register_error_handler(404, lambda _: render_template('404.html'))
+    app.add_url_rule("/", endpoint="index")
+    app.register_error_handler(404, lambda _: render_template("404.jinja"))
 
     @app.context_processor
     def processor():
         def year_from_timestamp(t: Timestamp):
             return t.ToDatetime().year
+
         return dict(year_from_timestamp=year_from_timestamp)
 
     return app

@@ -56,7 +56,7 @@ def index():
         .order_by(Game.queue_order)
     )
     return render_template(
-        "backlog/index.html",
+        "backlog/index.jinja",
         games=games,
         playing_games=playing_games,
         games_in_queue=queue,
@@ -89,8 +89,8 @@ def add():
         add_game_form = AddGameForm()
 
     add_game_form.launcher_id.choices = [
-        (l.id, l.name)
-        for l in db.session.scalars(select(Launcher).order_by(Launcher.id))
+        (launcher.id, launcher.name)
+        for launcher in db.session.scalars(select(Launcher).order_by(Launcher.id))
     ]
     add_game_form.status_id.choices = [
         (s.id, s.name) for s in db.session.scalars(select(Status).order_by(Status.id))
@@ -121,7 +121,7 @@ def add():
         db.session.commit()
         return redirect(url_for("backlog.detail", id=new_game.id))
 
-    return render_template("backlog/add.html", form=add_game_form)
+    return render_template("backlog/add.jinja", form=add_game_form)
 
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
@@ -131,8 +131,8 @@ def update_game(id):
 
     update_game_form = UpdateGameForm(obj=game)
     update_game_form.launcher_id.choices = [
-        (l.id, l.name)
-        for l in db.session.scalars(
+        (launcher.id, launcher.name)
+        for launcher in db.session.scalars(
             select(Launcher)
             .options(load_only(Launcher.id, Launcher.name))
             .order_by(Launcher.id)
@@ -182,7 +182,7 @@ def update_game(id):
         db.session.commit()
         return redirect(url_for("backlog.detail", id=game.id))
 
-    return render_template("backlog/update.html", game=game, form=update_game_form)
+    return render_template("backlog/update.jinja", game=game, form=update_game_form)
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
@@ -196,7 +196,7 @@ def delete_game(id):
 def detail(id):
     # TODO: fix scaling with different viewports
     game = db.get_or_404(Game, id)
-    return render_template("backlog/game.html", game=game)
+    return render_template("backlog/game.jinja", game=game)
 
 
 @bp.route("/random")
@@ -223,7 +223,7 @@ def queue():
         .where(Status.name == "want to play")
         .order_by(Game.queue_order)
     )
-    return render_template("backlog/queue.html", games=games_in_queue)
+    return render_template("backlog/queue.jinja", games=games_in_queue)
 
 
 class SearchIgdbGameForm(FlaskForm):
@@ -247,6 +247,6 @@ def igdb_search():
         message = GameResult()
         message.ParseFromString(data)  # type: ignore
         games = message.games  # type: ignore
-        return render_template("igdb/search_game.html", form=form, games=games)
+        return render_template("igdb/search_game.jinja", form=form, games=games)
 
-    return render_template("igdb/search_game.html", form=form)
+    return render_template("igdb/search_game.jinja", form=form)
