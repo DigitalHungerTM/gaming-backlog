@@ -1,28 +1,27 @@
 import os
-import time
 
+import dotenv
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 from google.protobuf.internal.well_known_types import Timestamp
 
 from backlog_app import utils
-from igdb.igdb import cover_url_builder
 
 """ TODO
 
-- set up git repo
+- production / dev deployment configurations
+- production using gunicorn
 - set up migrations
 - manifest.json to make installable as app (needs to be hosted behind SSL secured domain)
 - more queue functionality
-- connection to IGDB for cover art (through public API)
-- connection to IGDB for game information (through public API)
-- connection to ProtonDB for proton information (no public api though)
 
 """
 
 
 def create_app():
     app = Flask(__name__)
+
+    dotenv.load_dotenv()
 
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY'),

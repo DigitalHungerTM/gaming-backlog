@@ -2,7 +2,7 @@
 {% block header %}
 <h1>
     {% block title %}
-    Search Igdb
+    Search for a game to add to your collection
     {% endblock %}
 </h1>
 {% endblock %}
@@ -11,35 +11,35 @@
 <div class="container px-0">
     <div class="row">
         {% from 'bootstrap5/form.html' import render_form %}
-        {{ render_form(form) }}
+        <div class="col-6">
+            {{ render_form(form) }}
+        </div>
     </div>
 
     {% if games %}
-    <div class="row g-3">
-        <h3>Results</h3>
+    <div class="row g-3 mt-1">
         {% for game in games %}
         <div class="col-2">
-            <div class="game-card card text-white rounded-2 overflow-hidden">
+            <a href="{{ url_for('backlog.add', title=game.name, igdb_id=game.id, igdb_image_id=game.cover.image_id) }}">
+                <div class="game-card card text-white rounded-2 overflow-hidden">
+                    <div class="position-relative" style="height: 250px;">
 
-                <div class="position-relative" style="height: 250px;">
+                        <!-- Image -->
+                        <img src="{{ igdb_cover_url(game.cover.image_id) }}"
+                             class="w-100 h-100 object-fit-cover"
+                             alt="">
 
-                    <!-- Image -->
-                    <img src="{{ igdb_cover_url(game.cover.image_id) }}"
-                         class="w-100 h-100 object-fit-cover"
-                         alt="">
+                        <!-- Gradient -->
+                        <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
 
-                    <!-- Gradient -->
-                    <div class="gradient-bottom position-absolute bottom-0 start-0 w-100"></div>
-
-                    <!-- Text -->
-                    <div class="position-absolute bottom-0 start-0 p-3 w-100">
-                        <h6 class="mb-1">{{ game.name }}</h6>
-                        <p class="mb-0 small">{{ year_from_timestamp(game.first_release_date) }}</p>
+                        <!-- Text -->
+                        <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                            <h6 class="mb-1">{{ game.name }}</h6>
+                            <p class="mb-0 small">{{ year_from_timestamp(game.first_release_date) }}</p>
+                        </div>
                     </div>
-
                 </div>
-
-            </div>
+            </a>
         </div>
         {% endfor %}
     </div>

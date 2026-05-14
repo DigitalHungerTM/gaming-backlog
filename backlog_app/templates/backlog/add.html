@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 {% block header %}
-    <h1>
-        {% block title %}
-            Add Game
-        {% endblock %}
-    </h1>
+<h1>
+    {% block title %}
+    Add game
+    {% endblock %}
+</h1>
 {% endblock %}
 
 {% block content %}
-    {% from 'bootstrap5/form.html' import render_form %}
-    {{ render_form(form) }}
+    {% from 'bootstrap5/form.html' import render_form, render_field %}
+    <form method="post">
+        {{ form.csrf_token }}
+        {{ render_field(form.title) }}
+        {{ render_field(form.launcher_id) }}
+        {{ render_field(form.status_id) }}
+        {{ render_field(form.proton_id) }}
+        {{ render_field(form.rating) }}
+        {{ render_field(form.man) }}
+        {{ render_field(form.review) }}
+        {{ render_field(form.submit) }}
+    </form>
 {% endblock %}

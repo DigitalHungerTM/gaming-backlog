@@ -2,7 +2,6 @@ from typing import Literal, Any, Dict, List
 
 from flask import Flask
 import requests
-from requests import Response
 
 API_URL = 'https://api.igdb.com/v4'
 ACCESS_TOKEN_URL = 'https://id.twitch.tv/oauth2/token'
