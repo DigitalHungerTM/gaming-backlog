@@ -1,0 +1,7 @@
+[
+  {
+    "label": "Flask debug",
+    // python .venv is automatically activated when detected so no need to manually activate it
+    "command": "flask run --debug",
+  },
+]
