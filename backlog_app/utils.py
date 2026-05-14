@@ -16,6 +16,7 @@ Call these commands on the cli with `flask backlog <command name>`
 bp = Blueprint("utils", __name__, cli_group="backlog")
 
 
+# run with `flask backlog update-image-ids`
 @bp.cli.command("update-image-ids")
 def update_image_ids():
     """
@@ -28,7 +29,7 @@ def update_image_ids():
     page_size = 500  # default limit is 10, this is the maximum limit. See https://api-docs.igdb.com/#pagination
     covers_dict = {}
     for i in range(0, len(igdb_ids), page_size):
-        start = time.time()
+        start = time.perf_counter()
         query = (
             apicalypse.QueryBuilder()
             .fields(["game", "image_id"])
@@ -36,11 +37,12 @@ def update_image_ids():
             .offset(i)
             .limit(page_size)
         )
-        covers = igdb.api_request_plain("/covers", query.build()).json()
-        for c in covers:
-            covers_dict[c["game"]] = c["image_id"]
+        # this endpoint always returns a list
+        covers = igdb.api_request_plain("/covers", query.build())
+        for cover in covers:
+            covers_dict[cover["game"]] = cover["image_id"]  # type: ignore
 
-        end = time.time()
+        end = time.perf_counter()
         if end - start < 2.5:
             time.sleep(2.5 - (end - start))
 
@@ -55,6 +57,7 @@ def update_image_ids():
     print(f"Updated {len(covers_dict)} rows")
 
 
+# run with `flask backlog test-search-game`
 @bp.cli.command("test-search-game")
 @click.argument("title")
 def search_game(title: str):
@@ -69,5 +72,5 @@ def search_game(title: str):
     )
     data = igdb.api_request("/games.pb", query.build())
     message = GameResult()
-    message.ParseFromString(data)
-    print(message.games)
+    message.ParseFromString(data)  # type: ignore
+    print(message.games)  # type: ignore
